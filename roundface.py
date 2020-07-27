@@ -2,14 +2,16 @@ import os
 import cv2
 import numpy as np
 import argparse
+import glob
 
 
 class RoundFace:
     def __init__(self, source, output_size, is_greyed):
         base_dir = os.path.dirname(__file__)
-        prototxt_path = os.path.join(base_dir + 'model/deploy.prototxt')
-        caffemodel_path = os.path.join(base_dir + 'model/weights.caffemodel')
+        prototxt = os.path.join(base_dir + 'model/deploy.prototxt')
+        caffemodel = os.path.join(base_dir + 'model/weights.caffemodel')
 
+        self.allowed_extensions = ('.jpg','.jpeg','.png')
         self.base_dir = base_dir
         self.image_source = self.validate_image_source(source)
         self.output_size = output_size
@@ -17,7 +19,7 @@ class RoundFace:
         self.source_is_file = os.path.isfile(self.image_source)  
         self.dest_dir = self.create_dest_dir()
 
-        self.model = cv2.dnn.readNetFromCaffe(prototxt_path, caffemodel_path)
+        self.model = cv2.dnn.readNetFromCaffe(prototxt, caffemodel)
         self.face_count = 0
 
     def process(self):
@@ -28,13 +30,21 @@ class RoundFace:
 
 
     def process_folder(self):
-        pass
+        old_working_dir = os.getcwd()
+        os.chdir(self.image_source)
+        for ext in self.allowed_extensions:
+            images = glob.glob(f'*{ext}')
+            for img in images:
+                self.process_image(img)
+
+        os.chdir(old_working_dir)
+
 
     def process_image(self, filepath): 
         _,name = os.path.split(filepath)
         extension = name[name.index('.', -5):].lower()
 
-        if not extension in ('.jpg','.jpeg','.png'):
+        if not extension in self.allowed_extensions:
             raise Exception("Invalid Image File")
 
         image = cv2.imread(filepath)
@@ -73,7 +83,7 @@ class RoundFace:
         if self.output_size:
             size = self.output_size
             profile_image = cv2.resize(profile_image, (size, size))
-            grey_photo = cv2.resize(grey_photo,(size,size))
+            grey_photo = cv2.resize(grey_photo,(size, size))
 
 
         if self.is_greyed:
