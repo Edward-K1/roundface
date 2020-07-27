@@ -1,6 +1,7 @@
 import os
 import cv2
 import numpy as np
+import argparse
 
 
 class RoundFace:
@@ -17,22 +18,72 @@ class RoundFace:
         self.dest_dir = self.create_dest_dir()
 
         self.model = cv2.dnn.readNetFromCaffe(prototxt_path, caffemodel_path)
+        self.face_count = 0
 
     def process(self):
-        if not self.source_is_file:
-            self.process_folder()
+        if self.source_is_file:
+            self.process_image(self.image_source) 
         else:
-            self.process_file(self.image_source)
+            self.process_folder()
 
 
     def process_folder(self):
         pass
 
-    def process_file(self, filepath):
-        pass
+    def process_image(self, filepath): 
+        _,name = os.path.split(filepath)
+        extension = name[name.index('.', -5):].lower()
+
+        if not extension in ('.jpg','.jpeg','.png'):
+            raise Exception("Invalid Image File")
+
+        image = cv2.imread(filepath)
+        height, width = image.shape[:2]
+        blob = cv2.dnn.blobFromImage(image, 1.0, (300, 300),
+                                     (104.0, 177.0, 123.0))
+
+        self.model.setInput(blob)
+        detections = self.model.forward()
+
+        for i in range(0, detections.shape[2]):
+            face_box = detections[0, 0, i, 3:7] * np.array(
+                [width, height, width, height])
+            start_x, start_y, end_x, end_y = face_box.astype(np.int)
+
+            confidence = detections[0, 0, i, 2]
+
+            if (confidence > 0.5):
+                center = ((start_x + end_x) // 2, (start_y + end_y) // 2)
+                radius = (end_y - start_y)
+
+                new_start_x, new_end_x, new_start_y, new_end_y = (
+                    center[0] - radius, center[0] + radius, 
+                    center[1] - radius, center[1] + radius)
+
+                profile_image = image[new_start_y:new_end_y, new_start_x:
+                                      new_end_x]
+                self.save_image(profile_image, i, name)
+                self.face_count +=1
+                
+
+
+    def save_image(self, profile_image, face_index, name):
+        grey_photo = cv2.cvtColor(profile_image, cv2.COLOR_BGR2GRAY)
+
+        if self.output_size:
+            size = self.output_size
+            profile_image = cv2.resize(profile_image, (size, size))
+            grey_photo = cv2.resize(grey_photo,(size,size))
+
+
+        if self.is_greyed:
+            cv2.imwrite(f'{self.dest_dir}/{face_index}-{name}', grey_photo)
+        else:
+            cv2.imwrite(f'{self.dest_dir}/{face_index}-{name}', profile_image)
+
 
     def validate_image_source(self, image_path):
-        validated_path = ''
+        validated_path = image_path
         working_dir = os.getcwd()
         relative_path = os.path.join(working_dir,image_path)
 
@@ -54,17 +105,19 @@ class RoundFace:
         return dest_dir
 
 
+if __name__ == "__main__":
+    
 
-parser = argparse.ArgumentParser()
-parser.add_argument('-s','--source', required=True,
-                    help="Image Source. It can be a file or folder")
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-s','--source', required=True,
+                        help="Image Source. It can be a file or folder")
 
-parser.add_argument('-g','--grey', type=int, default=0,
-    help="Whether resulting photos should be greyed out. 0 for False, 1 for True.")
+    parser.add_argument('-g','--grey', type=int, default=0,
+        help="Whether resulting photos should be greyed out. 0 for False, 1 for True.")
 
-parser.add_argument('-sz','--size', type=int,
-    help="Number. Output size in pixels.")
-args = parser.parse_args()
+    parser.add_argument('-sz','--size', type=int,
+        help="Number. Output size in pixels.")
+    args = parser.parse_args()
 
-rf = RoundFace(args.source, args.size, args.grey)
-rf.process()
+    rf = RoundFace(args.source, args.size, args.grey)
+    rf.process()
