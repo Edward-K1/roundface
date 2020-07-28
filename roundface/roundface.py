@@ -120,9 +120,7 @@ class RoundFace:
             os.makedirs(dest_dir)
         return dest_dir
 
-
-if __name__ == "__main__":
-
+def execute():
     parser = argparse.ArgumentParser()
     parser.add_argument('-s','--source', required=True,
                         help="Image Source. It can be a file or folder")
@@ -139,3 +137,6 @@ if __name__ == "__main__":
 
     rf = RoundFace(args.source, args.size, args.grey, args.radius)
     rf.process()
+
+if __name__ == "__main__":
+    execute()
