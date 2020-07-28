@@ -6,28 +6,39 @@ import glob
 
 
 class RoundFace:
-    def __init__(self, source, output_size, is_greyed):
+    def __init__(self, source, output_size, is_greyed, radius=1.0):
         base_dir = os.path.dirname(__file__)
         prototxt = os.path.join(base_dir + 'model/deploy.prototxt')
         caffemodel = os.path.join(base_dir + 'model/weights.caffemodel')
 
-        self.allowed_extensions = ('.jpg','.jpeg','.png')
         self.base_dir = base_dir
-        self.image_source = self.validate_image_source(source)
         self.output_size = output_size
         self.is_greyed = bool(is_greyed)
-        self.source_is_file = os.path.isfile(self.image_source)  
+        self.allowed_extensions = ('.jpg', '.jpeg', '.png')
+        self.image_source = self.validate_image_source(source)
+        self.source_is_file = os.path.isfile(self.image_source)
         self.dest_dir = self.create_dest_dir()
+        self.radius = radius
 
         self.model = cv2.dnn.readNetFromCaffe(prototxt, caffemodel)
         self.face_count = 0
 
+    @property
+    def radius(self):
+        return self.__radius
+
+    @radius.setter
+    def radius(self, value):
+        if value < 0.5:
+            self.__radius = 0.5
+        else:
+            self.__radius = value
+
     def process(self):
         if self.source_is_file:
-            self.process_image(self.image_source) 
+            self.process_image(self.image_source)
         else:
             self.process_folder()
-
 
     def process_folder(self):
         old_working_dir = os.getcwd()
@@ -39,9 +50,8 @@ class RoundFace:
 
         os.chdir(old_working_dir)
 
-
-    def process_image(self, filepath): 
-        _,name = os.path.split(filepath)
+    def process_image(self, filepath):
+        _, name = os.path.split(filepath)
         extension = name[name.index('.', -5):].lower()
 
         if not extension in self.allowed_extensions:
@@ -64,18 +74,16 @@ class RoundFace:
 
             if (confidence > 0.5):
                 center = ((start_x + end_x) // 2, (start_y + end_y) // 2)
-                radius = (end_y - start_y)
+                radius = int((end_y - start_y) * self.radius)
 
                 new_start_x, new_end_x, new_start_y, new_end_y = (
-                    center[0] - radius, center[0] + radius, 
-                    center[1] - radius, center[1] + radius)
+                    center[0] - radius, center[0] + radius, center[1] - radius,
+                    center[1] + radius)
 
                 profile_image = image[new_start_y:new_end_y, new_start_x:
                                       new_end_x]
                 self.save_image(profile_image, i, name)
-                self.face_count +=1
-                
-
+                self.face_count += 1
 
     def save_image(self, profile_image, face_index, name):
         grey_photo = cv2.cvtColor(profile_image, cv2.COLOR_BGR2GRAY)
@@ -83,32 +91,30 @@ class RoundFace:
         if self.output_size:
             size = self.output_size
             profile_image = cv2.resize(profile_image, (size, size))
-            grey_photo = cv2.resize(grey_photo,(size, size))
-
+            grey_photo = cv2.resize(grey_photo, (size, size))
 
         if self.is_greyed:
             cv2.imwrite(f'{self.dest_dir}/{face_index}-{name}', grey_photo)
         else:
             cv2.imwrite(f'{self.dest_dir}/{face_index}-{name}', profile_image)
 
-
     def validate_image_source(self, image_path):
         validated_path = image_path
         working_dir = os.getcwd()
-        relative_path = os.path.join(working_dir,image_path)
+        relative_path = os.path.join(working_dir, image_path)
 
         if os.path.exists(relative_path):
             validated_path = relative_path
-        
+
         else:
             if not os.path.exists(image_path):
                 raise Exception("Invalid Image Source")
-        
+
         return validated_path
 
     def create_dest_dir(self):
         source_parent = os.path.dirname(self.image_source)
-        dest_dir = os.path.join(source_parent,"roundface")
+        dest_dir = os.path.join(source_parent, "roundface")
 
         if not os.path.exists(dest_dir):
             os.makedirs(dest_dir)
@@ -116,18 +122,20 @@ class RoundFace:
 
 
 if __name__ == "__main__":
-    
 
     parser = argparse.ArgumentParser()
     parser.add_argument('-s','--source', required=True,
                         help="Image Source. It can be a file or folder")
 
-    parser.add_argument('-g','--grey', type=int, default=0,
+    parser.add_argument('-g', '--grey', type=int, default=0,
         help="Whether resulting photos should be greyed out. 0 for False, 1 for True.")
 
-    parser.add_argument('-sz','--size', type=int,
-        help="Number. Output size in pixels.")
+    parser.add_argument('-sz', '--size', type=int,
+                        help="Number. Output size in pixels.")
+
+    parser.add_argument('-r','--radius', type=float, default=1.0,
+                        help="Float. Adjust photo radius to a given ratio")
     args = parser.parse_args()
 
-    rf = RoundFace(args.source, args.size, args.grey)
+    rf = RoundFace(args.source, args.size, args.grey, args.radius)
     rf.process()
