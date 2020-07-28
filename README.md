@@ -36,7 +36,7 @@ python roundface.py -s z://home/photos/myself.jpg
 python roundface.py -s vacation/photos - sz 400 -g 1
 python roundface.py -s vacation/photos - sz 400 -r 1.0
 ```
-A folder named **roundfaces** will in created in the same location as the image source. It will contain the output photos.
+A folder named **roundface** will in created in the same location as the image source. It will contain the output photos.
 
 ## Credits:
 [Pexels](https://www.pexels.com/)

@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="roundface",
-    version="0.0.2",
+    version="0.0.4",
     author="Edward Kigozi",
     author_email="eddycodes256@gmail.com",
     description="Detect Faces In Images and Generate Profile Photos",
@@ -19,4 +19,10 @@ setuptools.setup(
         "Operating System :: OS Independent",
     ],
     python_requires='>=3.6',
+    entry_points={
+        'console_scripts':[
+            'roundface = roundface.roundface:execute'
+
+        ]
+    }
 )
