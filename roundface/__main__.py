@@ -1,3 +1,3 @@
-from roundface import execute
+from roundface.roundface import execute
 
 execute()
