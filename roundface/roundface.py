@@ -8,8 +8,8 @@ import glob
 class RoundFace:
     def __init__(self, source, output_size, is_greyed, radius=1.0):
         base_dir = os.path.dirname(__file__)
-        prototxt = os.path.join(base_dir + 'model/deploy.prototxt')
-        caffemodel = os.path.join(base_dir + 'model/weights.caffemodel')
+        prototxt = os.path.join(base_dir , 'model','deploy.prototxt')
+        caffemodel = os.path.join(base_dir , 'model','weights.caffemodel')
 
         self.base_dir = base_dir
         self.output_size = output_size
