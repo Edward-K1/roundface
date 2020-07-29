@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="roundface",
-    version="0.0.12",
+    version="0.0.14",
     author="Edward Kigozi",
     description="Detect Faces In Images and Generate Profile Photos",
     long_description=long_description,

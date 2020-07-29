@@ -89,13 +89,14 @@ class RoundFace:
         if profile_image.size == 0:
             return
 
+        grey_photo = cv2.cvtColor(profile_image, cv2.COLOR_BGR2GRAY)
+
         if self.output_size:
             size = self.output_size
             profile_image = cv2.resize(profile_image, (size, size))
             grey_photo = cv2.resize(grey_photo, (size, size))
 
         if self.is_greyed:
-            grey_photo = cv2.cvtColor(profile_image, cv2.COLOR_BGR2GRAY)
             cv2.imwrite(f'{self.dest_dir}/{face_index}-{name}', grey_photo)
         else:
             cv2.imwrite(f'{self.dest_dir}/{face_index}-{name}', profile_image)
