@@ -65,5 +65,5 @@ python roundface.py -s vacation/photos - sz 400 -r 1.0
 A folder named **roundface** will in created in the same location as the image source. It will contain the output photos.
 
 ## Credits:
-[Pexels](https://www.pexels.com/)   
+[Pexels](https://www.pexels.com/photo/three-children-sitting-on-stairs-1212805/)   
 [Towards Data Science](https://towardsdatascience.com/extracting-faces-using-opencv-face-detection-neural-network-475c5cd0c260)
