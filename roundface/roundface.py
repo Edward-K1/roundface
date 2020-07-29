@@ -72,7 +72,7 @@ class RoundFace:
 
             confidence = detections[0, 0, i, 2]
 
-            if (confidence > 0.5):
+            if (confidence >= 0.5):
                 center = ((start_x + end_x) // 2, (start_y + end_y) // 2)
                 radius = int((end_y - start_y) * self.radius)
 
@@ -86,7 +86,8 @@ class RoundFace:
                 self.face_count += 1
 
     def save_image(self, profile_image, face_index, name):
-        grey_photo = cv2.cvtColor(profile_image, cv2.COLOR_BGR2GRAY)
+        if profile_image.size == 0:
+            return
 
         if self.output_size:
             size = self.output_size
@@ -94,6 +95,7 @@ class RoundFace:
             grey_photo = cv2.resize(grey_photo, (size, size))
 
         if self.is_greyed:
+            grey_photo = cv2.cvtColor(profile_image, cv2.COLOR_BGR2GRAY)
             cv2.imwrite(f'{self.dest_dir}/{face_index}-{name}', grey_photo)
         else:
             cv2.imwrite(f'{self.dest_dir}/{face_index}-{name}', profile_image)

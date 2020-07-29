@@ -25,13 +25,13 @@ pip install opencv-python roundface
 
 ## More Options:
 
-**-g** or **--grey**  Integer. 1 or 0. Specifies whether resulting photos should be greyed out.
+**-g**  or  **--grey**   Integer. 1 or 0. Specifies whether resulting photos should be greyed out.
 
-**- sz** or **--size**  Integer. Desired output size in pixels
+**- sz**  or  **--size**   Integer. Desired output size in pixels
 
-**- r** or **--radius** Integer (Float). e.g 1.2 for 20% more than the default radius.
+**- r**  or  **--radius**  Integer (Float). e.g 1.2 for 20% more than the default radius.
 
-**Caution:** **Images must be able to accomodate space requirements (height and width) otherwise an exception will be thrown**
+**Faces that can't fit a particular radius will be skipped**
 
 
 ## Examples
@@ -53,6 +53,5 @@ python roundface.py -s vacation/photos - sz 400 -r 1.0
 A folder named **roundface** will in created in the same location as the image source. It will contain the output photos.
 
 ## Credits:
-[Pexels](https://www.pexels.com/)
-
+[Pexels](https://www.pexels.com/)   
 [Towards Data Science](https://towardsdatascience.com/extracting-faces-using-opencv-face-detection-neural-network-475c5cd0c260)
