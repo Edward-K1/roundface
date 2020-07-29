@@ -1,6 +1,18 @@
 # Roundface
 Generate profile photos for all faces in a given image
 
+**Input**
+
+![Source image](resources/images/sample.jpg?raw=true)
+
+**Output**
+
+![demo image](resources/images/1.jpg?raw=true) ![demo image](resources/images/2.jpg?raw=true) ![demo image](resources/images/3.jpg?raw=true)
+
+**Greyed**
+
+![demo image](resources/images/1-grey.jpg?raw=true) ![demo image](resources/images/2-grey.jpg?raw=true) ![demo image](resources/images/3-grey.jpg?raw=true)
+
 ## Requirements:
 - Python 3
 - OpenCV
