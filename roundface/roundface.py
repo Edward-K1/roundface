@@ -72,7 +72,7 @@ class RoundFace:
 
             confidence = detections[0, 0, i, 2]
 
-            if (confidence >= 0.5):
+            if (confidence > 0.5):
                 center = ((start_x + end_x) // 2, (start_y + end_y) // 2)
                 radius = int((end_y - start_y) * self.radius)
 
